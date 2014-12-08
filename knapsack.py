@@ -90,7 +90,8 @@ def randomized_maxvalue(problem, limit=100, callback=None):
     for step in range(limit):
         if callback is not None:
             callback(current)
-        current = random.choice(list(islice(sorted(list(current.expand()), key= lambda x: x.value()), 5)))
+        sorted_neighbours = sorted(list(current.expand()), key= lambda x: -x.value())
+        current = random.choice(sorted_neighbours[:5])
         if current.value() > best.value():
             best = current
     return best
