@@ -1,5 +1,6 @@
 from search import *
 from operator import itemgetter
+from itertools import islice
 
 class State:
 
@@ -83,6 +84,18 @@ def maxvalue(problem, limit=100, callback=None):
     return best
 
 
+def randomized_maxvalue(problem, limit=100, callback=None):
+    current = LSNode(problem, problem.initial, 0)
+    best = current
+    for step in range(limit):
+        if callback is not None:
+            callback(current)
+        current = random.choice(list(islice(sorted(list(current.expand()), key= lambda x: x.value()), 5)))
+        if current.value() > best.value():
+            best = current
+    return best
+
+
  
 f = open(sys.argv[1], 'r')
 
@@ -111,4 +124,4 @@ init = State(init_items, current_weight)
 
 problem = Knapsack(init)
 
-print(maxvalue(problem).value())
+print(randomized_maxvalue(problem).value())
