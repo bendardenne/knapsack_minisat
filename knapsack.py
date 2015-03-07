@@ -2,6 +2,12 @@ from search import *
 from operator import itemgetter
 from itertools import islice
 
+def utility(state):
+    u = 0
+    for item in state.items:
+        u += items[item][1]
+    return u
+
 class State:
 
     def __init__(self, i, w) :
@@ -9,8 +15,6 @@ class State:
         self.items = i
 
     def add(self, no):
-        #global capa
-        #global items
         if not item in self.items and capa >= self.weight + items[no][0]:
             self.items[no] = items[no]
             self.weight += items[no][0]
@@ -27,9 +31,6 @@ class State:
         return False
 
     def replace(self, old, new):
-        #global capa
-        #global items
-        
         if not old in self.items or new in self.items or old == new:
             return False
         
@@ -69,7 +70,7 @@ class Knapsack(Problem):
         return c + 1
 
     def value(self, state):
-        return state.weight 
+        return utility(state)   #.weight 
     
 
 def maxvalue(problem, limit=100, callback=None):
@@ -79,8 +80,9 @@ def maxvalue(problem, limit=100, callback=None):
         if callback is not None:
             callback(current)
         current = max(list(current.expand()), key= lambda x: x.value())
-        if current.value() > best.value():
+        if current.value() >= best.value():
             best = current
+    print(best.step)
     return best
 
 
@@ -92,8 +94,9 @@ def randomized_maxvalue(problem, limit=100, callback=None):
             callback(current)
         sorted_neighbours = sorted(list(current.expand()), key= lambda x: -x.value())
         current = random.choice(sorted_neighbours[:5])
-        if current.value() > best.value():
+        if current.value() >= best.value():
             best = current
+    print(best.step)
     return best
 
 
@@ -125,4 +128,14 @@ init = State(init_items, current_weight)
 
 problem = Knapsack(init)
 
-print(randomized_maxvalue(problem).value())
+if sys.argv[2] == "1":
+    print(sys.argv[1] + " MAXVALUE")
+    print(utility(maxvalue(problem).state))
+elif sys.argv[2] == "2":
+    print(sys.argv[1] + " RANDOMIZED_MAXVALUE")
+    print(utility(randomized_maxvalue(problem).state))
+elif sys.argv[2] == "3":
+    print(sys.argv[1] + " RANDOMWALK")
+    print(utility(random_walk(problem).state))
+
+

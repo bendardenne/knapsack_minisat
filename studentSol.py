@@ -3,28 +3,29 @@
 import rpg
 
 def get_clauses(merchant, level):
-		# Append all clauses needed to find the correct equipment in the 'clauses' list.
-		#
-		# Minisat variables are represented with integers. As such you should use
-		# the index attribute of classes Ability and Equipment from the rpg.py module
-		# 
-		# The equipments and abilities they provide read from the merchant file you passed
-		# as argument are contained in the variable 'merchant'.
-		# The enemies and abilities they require to be defeated read from the level file you
-		# passed as argument are contained in the variable 'level'
-		# 
-		# For example if you want to add the clauses equ1 or equ2 or ... or equN (i.e. a
-		# disjunction of all the equipment pieces the merchant proposes), you should write:
-		# 
-		# clauses.append(tuple(equ.index for equ in merchant.equipments))
-		clauses = []
-		return clauses
+    clauses = []
+    all_items = set()
+    for abi in level.ability_names:
+        this_abi = ()
+        for equ in merchant.equipments:
+            if abi in [x.name for x in equ.provides] :
+                this_abi += (equ.index, )
+                all_items.add(equ.index)
+        clauses.append(this_abi)
+
+    for e in merchant.equipments:
+        clauses.append((-e.index, -e.conflicts.index))
+
+    return clauses
 
 def get_nb_vars(merchant, level):
-		# nb_vars should be the number of different variables present in your list 'clauses'
-		# 
-		# For example, if your clauses contain all the equipments proposed by merchant and
-		# all the abilities provided by these equipment, you would have:
-		# nb_vars = len(merchant.abilities) + len(merchant.equipments)
-		nb_vars = 0
-		return nb_vars
+    clauses = get_clauses(merchant, level)
+
+    all_items = set()
+    for elem in [elem for pair in clauses for elem in pair]:
+        all_items.add(abs(elem))
+
+    nb_vars = len(all_items)
+    print(nb_vars)
+    return nb_vars
+

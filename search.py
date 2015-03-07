@@ -236,6 +236,7 @@ def random_walk(problem, limit=100, callback=None):
         current = random.choice(list(current.expand()))
         if current.value() > best.value():
             best = current
+    print(best.step)
     return best
 
 
